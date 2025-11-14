@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 public class Labyrint {
-
     static final int x = 5; // Bredd
     static final int y = 5; // Höjd
     static String headCoordinate = "A1";
