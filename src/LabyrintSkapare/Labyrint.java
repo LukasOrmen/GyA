@@ -4,39 +4,48 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 public class Labyrint {
-    static final int x = 5; // Bredd
-    static final int y = 5; // Höjd
-    static String headCoordinate = "A1";
-    static LinkedList<String> visitedCoordinates = new LinkedList<>();
-    static LinkedList<String> availableMoves;
+    private int x = 5; // Bredd
+    private int y = 5; // Höjd
+    private String headCoordinate;
+    private LinkedList<String> availableMoves;
+    private String maze;
+    private LinkedList<String> visitedCoordinates;
+
 
     public static void main(String[] args) {
-        while (true) {
-            availableMoves = lookForAvailableMoves(headCoordinate, visitedCoordinates);
+        Labyrint lab = new Labyrint(5, 5);
 
-            if (visitedCoordinates.size() >= x*y) {
-                System.out.println("The visited coordinates length is : " + visitedCoordinates.size());
-                System.out.println("Therefore it is done");
-                break;
-            }
+        System.out.println(lab);
+        System.out.println(lab.getVisitedCoordinates());
+    }
+
+    public Labyrint(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.headCoordinate = "A1";
+        this.availableMoves = null;
+        this.maze = "";
+        this.visitedCoordinates = new LinkedList<>();
+
+        while (true) {
+
+            availableMoves = lookForAvailableMoves(headCoordinate);
+
+            // Stops when the program has visited all the possible moves
+            if (visitedCoordinates.size() >= x*y) break;
+
+            // Happens when no moves are available, then it has to backtrack
             if (availableMoves.isEmpty()) {
                 if (!visitedCoordinates.contains(headCoordinate)) {
                     visitedCoordinates.add(headCoordinate);
                 }
                 headCoordinate = visitedCoordinates.get(visitedCoordinates.indexOf(headCoordinate) - 1);
-            } else {
+            }
+            // Meaning it has options in available moves, which means we are going to randomize a choice
+            else {
                 if (!visitedCoordinates.contains(headCoordinate)) visitedCoordinates.add(headCoordinate);
 
-                for (String availableMove : availableMoves) {
-                    for (String visitedCoordinate : visitedCoordinates) {
-                        if (availableMove.equals(visitedCoordinate))
-                            System.out.println("WARNING AVAILABLE MOVES IS NOT SEPARATE");
-                    }
-                }
-
                 Collections.shuffle(availableMoves);
-                System.out.println(availableMoves);
-                System.out.println(availableMoves.getFirst());
                 headCoordinate = availableMoves.getFirst();
 
                 // Clearing the available moves list to refresh the algorithms options
@@ -47,30 +56,15 @@ public class Labyrint {
         String maze = mazeBuilder();
 
         for (int i = 0; i < visitedCoordinates.size(); i++) {
-            if (i <= 9) maze = maze.replace(visitedCoordinates.get(i) + " ", " " + (i+1) + " ");
-            if (i >= 9) maze = maze.replace(visitedCoordinates.get(i) + " ",(i+1) + " ");
-
-            //Thread.sleep(1000);
-
-        }
-
-        for (int i = 0; i < visitedCoordinates.size(); i++) {
             if (visitedCoordinates.indexOf(visitedCoordinates.get(i)) != visitedCoordinates.lastIndexOf(visitedCoordinates.get(i))) {
                 System.out.println("MULTIPLES DETECTED WARNING: " + visitedCoordinates.get(i));
             }
         }
-
-        System.out.println(maze);
-        System.out.println(visitedCoordinates);
-    } // main
-
-    public Labyrint() {
-
     }
 
 
 
-    public static LinkedList<String> lookForAvailableMoves(String headCoordinate, LinkedList<String> visitedCoordinates) {
+    public LinkedList<String> lookForAvailableMoves(String headCoordinate) {
         LinkedList<String> availableMoves = new LinkedList<>();
 
         char headLetter = headCoordinate.charAt(0);
@@ -92,8 +86,7 @@ public class Labyrint {
         return availableMoves;
     }
 
-    public static String mazeBuilder() {
-        String maze = "";
+    public String mazeBuilder() {
 
         char mazeStartLetter = 'A';
         int mazeStartInt = 1;
@@ -106,8 +99,22 @@ public class Labyrint {
             mazeStartLetter++;
         }
 
-        System.out.println(maze);
-
         return maze;
+    }
+
+    public LinkedList<String> getVisitedCoordinates() {
+        return visitedCoordinates;
+    }
+
+    @Override
+    public String toString() {
+        String completedMazeString = maze;
+        for (int i = 0; i < visitedCoordinates.size(); i++) {
+            if (i <= 9)
+                completedMazeString = completedMazeString.replace(visitedCoordinates.get(i) + " ", " " + (i + 1) + " ");
+            if (i >= 9)
+                completedMazeString = completedMazeString.replace(visitedCoordinates.get(i) + " ", (i + 1) + " ");
+        }
+        return completedMazeString;
     }
 }
