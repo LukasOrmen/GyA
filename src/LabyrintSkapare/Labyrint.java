@@ -16,6 +16,7 @@ public class Labyrint {
         Labyrint lab = new Labyrint(5, 5);
 
         System.out.println(lab);
+        System.out.println(lab.getVisitedCoordinates());
     }
 
     public Labyrint(int x, int y) {
