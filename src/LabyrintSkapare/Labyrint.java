@@ -4,20 +4,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 public class Labyrint {
-    private int x = 5; // Bredd
-    private int y = 5; // Höjd
-    private String headCoordinate;
+    private int x = 5; // Bredd på labyrinten
+    private int y = 5; // Höjd på labyrinten
+    private String headCoordinate; // Startkordinat för generationsalgoritmen
     private LinkedList<String> availableMoves;
     private String maze;
     private LinkedList<String> visitedCoordinates;
-
-
-    public static void main(String[] args) {
-        Labyrint lab = new Labyrint(5, 5);
-
-        System.out.println(lab);
-        System.out.println(lab.getVisitedCoordinates());
-    }
 
     public Labyrint(int x, int y) {
         this.x = x;
@@ -117,4 +109,14 @@ public class Labyrint {
         }
         return completedMazeString;
     }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+
 }
