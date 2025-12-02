@@ -109,14 +109,4 @@ public class Labyrint {
         }
         return completedMazeString;
     }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-
 }
