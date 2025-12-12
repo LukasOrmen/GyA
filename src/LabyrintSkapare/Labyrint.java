@@ -4,12 +4,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 
 public class Labyrint {
-    private int x = 5; // Bredd på labyrinten
-    private int y = 5; // Höjd på labyrinten
-    private String headCoordinate; // Startkordinat för generationsalgoritmen
+    private int x ; // Bredd på labyrinten
+    private int y; // Höjd på labyrinten
+    private String headCoordinate; // Startkoordinat för generationsalgoritmen
     private LinkedList<String> availableMoves;
     private String maze;
     private LinkedList<String> visitedCoordinates;
+    private LinkedList<String> queue;
 
     public Labyrint(int x, int y) {
         this.x = x;
@@ -18,16 +19,18 @@ public class Labyrint {
         this.availableMoves = null;
         this.maze = "";
         this.visitedCoordinates = new LinkedList<>();
+        this.queue = new LinkedList<>();
 
         while (true) {
 
             availableMoves = lookForAvailableMoves(headCoordinate);
 
-            // Stops when the program has visited all the possible moves
+            // Stops when the program has visited all possible moves
             if (visitedCoordinates.size() >= x*y) break;
 
             // Happens when no moves are available, then it has to backtrack
             if (availableMoves.isEmpty()) {
+
                 if (!visitedCoordinates.contains(headCoordinate)) {
                     visitedCoordinates.add(headCoordinate);
                 }
@@ -38,18 +41,19 @@ public class Labyrint {
                 if (!visitedCoordinates.contains(headCoordinate)) visitedCoordinates.add(headCoordinate);
 
                 Collections.shuffle(availableMoves);
-                headCoordinate = availableMoves.getFirst();
+
+                for (String move : availableMoves) {
+                    if (!visitedCoordinates.contains(move) && !queue.contains(move)) {
+                        queue.add(move);
+                        Collections.shuffle(queue);
+                    }
+                }
+
+                //headCoordinate = availableMoves.getFirst();
+                headCoordinate = queue.pop();
 
                 // Clearing the available moves list to refresh the algorithms options
                 availableMoves.clear();
-            }
-        }
-
-        String maze = mazeBuilder();
-
-        for (int i = 0; i < visitedCoordinates.size(); i++) {
-            if (visitedCoordinates.indexOf(visitedCoordinates.get(i)) != visitedCoordinates.lastIndexOf(visitedCoordinates.get(i))) {
-                System.out.println("MULTIPLES DETECTED WARNING: " + visitedCoordinates.get(i));
             }
         }
     }
@@ -79,7 +83,6 @@ public class Labyrint {
     }
 
     public String mazeBuilder() {
-
         char mazeStartLetter = 'A';
         int mazeStartInt = 1;
         for (int i = 0; i < y; i++) {
@@ -98,7 +101,7 @@ public class Labyrint {
         return visitedCoordinates;
     }
 
-    @Override
+
     public String toString() {
         String completedMazeString = maze;
         for (int i = 0; i < visitedCoordinates.size(); i++) {
