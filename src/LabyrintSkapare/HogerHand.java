@@ -1,107 +1,105 @@
 package LabyrintSkapare;
 
 
+import algoritmer.HogerHandSolver;
+
+import java.util.LinkedList;
+
 public class HogerHand {
 
-    /*
-     Flyttar en position ett steg i given riktning
-     Ex: "A1" + HOGER → "A2"
-     */
-    static String move(String pos, Riktning d) {
-        char row = pos.charAt(0);                 // Rad, t.ex. 'A'
-        int col = Integer.parseInt(pos.substring(1)); // Kolumn, t.ex. 1
+    private final Cell[][] cells;
+    private int x, y;               // aktuell position
+    private HogerHandSolver.Riktning riktning;            // aktuell riktning
+    private final int width, height;
 
-        // Justerar koordinaten beroende på riktning
-        switch (d) {
-            case UPP:     row--; break;
-            case NER:     row++; break;
-            case HOGER:   col++; break;
-            case VANSTER: col--; break;
-        }
+    // För att kunna visa vägen
+    private final LinkedList<String> path = new LinkedList<>();
 
-        // Bygger ny koordinat som String
-        // row, collumn
-        return "" + row + col;
+    public HogerHand(Cell[][] cells, int startX, int startY, HogerHandSolver.Riktning startrik) {
+        this.cells = cells;
+        this.x = startX;
+        this.y = startY;
+        this.riktning = startrik;
+
+        this.height = cells.length;
+        this.width = cells[0].length;
+
+        path.add(toCoord());
     }
 
-    /*
-     Enum som representerar riktningar i labyrinten.
-     Innehåller även hjälpmetoder för rotation.
-     */
-    enum Riktning {
-        UPP, HOGER, NER, VANSTER;
+    //högerhands
+    public void solve(int goalX, int goalY) {
 
-        // Returnerar riktningen till höger (90°)
-        Riktning right() {
-            return values()[(ordinal() + 1) % 4];
-        }
-
-        // Returnerar riktningen till vänster (90°)
-        Riktning left() {
-            return values()[(ordinal() + 3) % 4];
-        }
-
-        // Returnerar motsatt riktning (180°)
-        Riktning back() {
-            return values()[(ordinal() + 2) % 4];
-        }
-    }
-
-    public static void main(String[] args) {
-
-        // Skapar labyrinten
-        Labyrint lab = new Labyrint(5, 5, 30);
-
-        // Skriver ut labyrinten visuellt
-        System.out.println(lab.mazeBuilder());
-        System.out.println(lab);
-
-        // Startposition och mål
-        String position = "E5";
-        String goal = "A1";
-
-        // Startar med att titta åt höger
-        Riktning riktning = Riktning.HOGER;
-
-        // Säkerhetsräknare för att undvika oändlig loop
         int safety = 0;
 
-        /*
-         Huvudloop för högerhandsregeln.
-         Fortsätter tills målet nås eller säkerhetsgränsen uppnås.
-         */
-        while (!position.equals(goal) && safety++ < 1000) {
+        while ((x != goalX || y != goalY) && safety++ < 10_000) {
 
-            /*
-             * Högerhandsregel (relativt aktuell riktning):
-             1. höger
-             2. rakt fram
-             3. vänster
-             4. bakåt
-             */
-            Riktning[] checks = {
+            // Högerhandsregel i korrekt ordning
+            HogerHandSolver.Riktning[] checks = {
                     riktning.right(),
                     riktning,
                     riktning.left(),
                     riktning.back()
             };
 
-            // Testar riktningarna i prioriterad ordning
-            for (Riktning d : checks) {
-                String next = move(position, d);
-
-                // Flytta till första möjliga riktning
-                if (lab.isConnected(position, next)) {
-                    riktning = d;
-                    position = next;
+            for (HogerHandSolver.Riktning d : checks) {
+                if (canMove(d)) {
+                    move(d);
                     break;
                 }
             }
         }
 
-        // Slutresultat
-        System.out.println("Slutposition: " + position);
-        System.out.println("Antal steg: " + safety);
+        System.out.println("Slutposition: " + toCoord());
+        System.out.println("Antal steg: " + path.size());
+        System.out.println("Väg: " + path);
+    }
+
+    //
+
+    private boolean canMove(HogerHandSolver.Riktning d) {
+        Cell c = cells[y][x];
+
+        return switch (d) {
+            case UPP     -> c.getTop() == 0 && y > 0;
+            case NER     -> c.getBottom() == 0 && y < height - 1;
+            case HOGER   -> c.getRight() == 0 && x < width - 1;
+            case VANSTER -> c.getLeft() == 0 && x > 0;
+        };
+    }
+
+    private void move(HogerHandSolver.Riktning d) {
+        riktning = d;
+
+        switch (d) {
+            case UPP     -> y--;
+            case NER     -> y++;
+            case HOGER   -> x++;
+            case VANSTER -> x--;
+        }
+
+        path.add(toCoord());
+    }
+
+    private String toCoord() {
+        return "" + (char) ('A' + y) + (x + 1);
+    }
+
+    //riktning
+
+    enum Riktning {
+        UPP, HOGER, NER, VANSTER;
+
+        Riktning right() {
+            return values()[(ordinal() + 1) % 4];
+        }
+
+        Riktning left() {
+            return values()[(ordinal() + 3) % 4];
+        }
+
+        Riktning back() {
+            return values()[(ordinal() + 2) % 4];
+        }
     }
 }
-
