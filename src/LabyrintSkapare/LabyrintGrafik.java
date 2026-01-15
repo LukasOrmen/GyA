@@ -1,6 +1,6 @@
 package LabyrintSkapare;
 
-import algoritmer.HogerHandSolver;
+
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -47,7 +47,8 @@ public class LabyrintGrafik {
 
         // Lösning genom högerhandsmetoden
         HogerHandSolver solver = new HogerHandSolver(cells, 4, 4, HogerHandSolver.Riktning.HOGER);
-        solver.solve(0, 0);
+        // Mål: A1 → (0,0)
+            solver.solve(0, 0);
 
         // Ritar labyrinten
         drawMaze();
