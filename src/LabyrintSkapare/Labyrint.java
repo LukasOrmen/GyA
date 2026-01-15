@@ -3,7 +3,6 @@ package LabyrintSkapare;
 import java.util.LinkedList;
 
 public class Labyrint {
-    private boolean hasToGoForward;
     private int x; // Bredd på labyrinten
     private int y; // Höjd på labyrinten
     private String headCoordinate; // Startkoordinat för generationsalgoritmen
@@ -11,9 +10,8 @@ public class Labyrint {
     private String maze;
     private LinkedList<String> visitedCoordinates;
     private LinkedList<String> intersections;
-    private LinkedList<String> queue;
-    private boolean hasBackTracked = false;
-    private int backTrackChance;
+    private boolean hasBackTracked;
+    private int backTrackChance = 0;
     private int backTrack;
 
 
@@ -25,69 +23,73 @@ public class Labyrint {
         this.maze = "";
         this.visitedCoordinates = new LinkedList<>();
         this.intersections = new LinkedList<>();
-        this.queue = new LinkedList<>();
-        this.hasBackTracked = hasBackTracked;
+        this.hasBackTracked = false;
         this.backTrackChance = backTrackChance;
         this.backTrack = 0;
 
+        generation();
+    }
 
+    public void generation() {
         while (true) {
-            if (!visitedCoordinates.contains(headCoordinate)) {
-                visitedCoordinates.add(headCoordinate);
+
+            // Adds the current headCoordinate, where the algorithm is currently located, to the visitedCoordinates list
+            if (!visitedCoordinates.contains(headCoordinate)) visitedCoordinates.add(headCoordinate);
+
+            // Stops when the program has visited all possible moves
+            if (visitedCoordinates.size() >= x * y) break;
+
+
+            // The random backtracker logic
+            double chance = Math.random();
+
+            if (chance < (double) backTrackChance / 100.0) {
+                backTrack = (int) (chance * visitedCoordinates.indexOf(headCoordinate));
+                if (backTrack != 1) {
+                    while (backTrack != 0) {
+                        headCoordinate = visitedCoordinates.get(visitedCoordinates.indexOf(headCoordinate) - 1);
+                        hasBackTracked = true;
+
+                        backTrack--;
+                    }
+                }
+                backTrack = 0;
             }
 
-            if (backTrack == 0) {
-                double chance = Math.random();
+            // Looks around the headCoordinate to see which moves are available
+            availableMoves = lookForAvailableMoves(headCoordinate);
 
-                if (chance < (double) backTrackChance / 100.0 && backTrack == 0) {
-                    backTrack = (int) (chance * visitedCoordinates.indexOf(headCoordinate));
+            // "Randomises" which availableCoordinate it chooses, using the decisionMaker function
+            if (!availableMoves.isEmpty()) {
+                if (hasBackTracked) {
+                    intersections.add(headCoordinate);
+                    hasBackTracked = false;
                 }
 
-                while (backTrack != 0) {
-                    headCoordinate = visitedCoordinates.get(visitedCoordinates.indexOf(headCoordinate) - 1);
-                    hasBackTracked = true;
+                headCoordinate = availableMoves.get(decisionMaker());
 
-                    backTrack--;
-                }
+                availableMoves.clear();
 
-                availableMoves = lookForAvailableMoves(headCoordinate);
-
-                // Stops when the program has visited all possible moves
-                if (visitedCoordinates.size() >= x * y) break;
-
-                // It has to backtrack in this case
-                if (availableMoves.isEmpty()) {
-                    int idx = visitedCoordinates.indexOf(headCoordinate) - 1;
-
-                    if (idx == 0) {
-                        for (int i = 0; i < visitedCoordinates.size(); i++) {
-                            if (!lookForAvailableMoves(visitedCoordinates.get(i)).isEmpty()) {
-                                headCoordinate = visitedCoordinates.get(i);
-
-                                // JAG LÖSTE SKITEN, se till att den alltid väljer den första där den stöter på ett problem
-                            }
-                        }
-//                        for (int i = 0; i < visitedCoordinates.size(); i++) {
-//                            System.out.println(lookForAvailableMoves());
-//                            }
-
-                    }
-
-                    if (idx > 0) {
-                        headCoordinate = visitedCoordinates.get(idx);
-                        hasBackTracked = true;
-                    }
-
-                // Continues as usual
+                // If no available moves are found then it has to backtrack
+                // Backtracking logic in this case:
                 } else {
-                    if (hasBackTracked) {
-                        intersections.add(headCoordinate);
-                        hasBackTracked = false;
+
+                int idx = visitedCoordinates.indexOf(headCoordinate) - 1;
+
+                // Backtracks one move
+                if (idx > 0) {
+                    headCoordinate = visitedCoordinates.get(idx);
+                    hasBackTracked = true;
+                }
+
+                // Triggers if the backtracker has backed upp all the way back to the start
+                // Finds the first available move where it starts up again:
+                if (idx == 0) {
+                    for (int i = 0; i < visitedCoordinates.size(); i++) {
+                        if (!lookForAvailableMoves(visitedCoordinates.get(i)).isEmpty()) {
+                            headCoordinate = visitedCoordinates.get(i);
+                        }
                     }
-
-                    headCoordinate = availableMoves.get(decisionMaker());
-
-                    availableMoves.clear();
                 }
             }
         }
@@ -121,9 +123,6 @@ public class Labyrint {
         }
         return (int) decision;
     }
-
-
-
 
     public LinkedList<String> lookForAvailableMoves(String headCoordinate) {
         LinkedList<String> availableMoves = new LinkedList<>();
@@ -160,10 +159,6 @@ public class Labyrint {
         return maze;
     }
 
-    public LinkedList<String> getVisitedCoordinates() {
-        return visitedCoordinates;
-    }
-
     @Override
     public String toString() {
         String completedMazeString = maze;
@@ -179,4 +174,10 @@ public class Labyrint {
     public LinkedList<String> getIntersections() {
         return intersections;
     }
+
+    public LinkedList<String> getVisitedCoordinates() {
+        return visitedCoordinates;
+    }
+
+
 }
