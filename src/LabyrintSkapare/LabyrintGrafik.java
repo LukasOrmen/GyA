@@ -1,5 +1,7 @@
 package LabyrintSkapare;
 
+import algoritmer.HogerHandSolver;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -43,10 +45,15 @@ public class LabyrintGrafik {
         // Tar bort väggar baserat på visitedCoordinates
         removeWallsFromVisited();
 
+        // Lösning genom högerhandsmetoden
+        HogerHandSolver solver = new HogerHandSolver(cells, 4, 4, HogerHandSolver.Riktning.HOGER);
+        solver.solve(0, 0);
+
         // Ritar labyrinten
         drawMaze();
 
         // Bara för att kontrollera ritandet
+        System.out.println();
         System.out.println(visitedCoordinates);
         System.out.println(lab.getIntersections());
         System.out.println();
@@ -147,7 +154,7 @@ public class LabyrintGrafik {
 
     // Bara main
     public static void main(String[] args) {
-        new LabyrintGrafik(9, 9);
+        new LabyrintGrafik(5, 5);
     }
 
 
