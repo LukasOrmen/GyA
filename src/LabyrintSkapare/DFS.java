@@ -27,15 +27,20 @@ public class DFS {
                 System.out.println("amount off steps: "+ path.size());
             }
             else {
-                System.out.println("DFS didnt find the route");
+                System.out.println("DFS didn't find the route");
             }
 
         }
         //metoden
         private void dfs(int x, int y, int goalX, int goalY){
-            if (found)
-                return;
-
+            if (found) return;
+            visited[x][y] = true;
+            path.add(toCoord(x, y));
+            // Om vi är framme vid målet → klart
+          
         }
-
+    private String toCoord(int x, int y) {
+        return "" + (char) ('A' + y) + (x + 1);
     }
+}
+
