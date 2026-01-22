@@ -14,11 +14,10 @@ public class Labyrint {
     private int backTrackChance = 0;
     private int backTrack;
 
-
     public Labyrint(int x, int y, int backTrackChance) {
         this.x = x;
         this.y = y;
-        this.headCoordinate = "E5";
+        this.headCoordinate = "" + (char) ('A' + y - 1) + x;
         this.availableMoves = null;
         this.maze = "";
         this.visitedCoordinates = new LinkedList<>();
@@ -26,6 +25,7 @@ public class Labyrint {
         this.hasBackTracked = false;
         this.backTrackChance = backTrackChance;
         this.backTrack = 0;
+
 
         generation();
     }
@@ -39,13 +39,12 @@ public class Labyrint {
             // Stops when the program has visited all possible moves
             if (visitedCoordinates.size() >= x * y) break;
 
-
             // The random backtracker logic
             double chance = Math.random();
 
             if (chance < (double) backTrackChance / 100.0) {
                 backTrack = (int) (chance * visitedCoordinates.indexOf(headCoordinate));
-                if (backTrack != 1) {
+                if (backTrack > 5) {
                     while (backTrack != 0) {
                         headCoordinate = visitedCoordinates.get(visitedCoordinates.indexOf(headCoordinate) - 1);
                         hasBackTracked = true;
@@ -54,45 +53,46 @@ public class Labyrint {
                     }
                 }
                 backTrack = 0;
-            }
+            } else {
+                // Looks around the headCoordinate to see which moves are available
+                availableMoves = lookForAvailableMoves(headCoordinate);
 
-            // Looks around the headCoordinate to see which moves are available
-            availableMoves = lookForAvailableMoves(headCoordinate);
+                // "Randomises" which availableCoordinate it chooses, using the decisionMaker function
+                if (!availableMoves.isEmpty()) {
+                    if (hasBackTracked) {
+                        intersections.add(headCoordinate);
+                        hasBackTracked = false;
+                    }
 
-            // "Randomises" which availableCoordinate it chooses, using the decisionMaker function
-            if (!availableMoves.isEmpty()) {
-                if (hasBackTracked) {
-                    intersections.add(headCoordinate);
-                    hasBackTracked = false;
-                }
+                    headCoordinate = availableMoves.get(decisionMaker());
 
-                headCoordinate = availableMoves.get(decisionMaker());
+                    availableMoves.clear();
 
-                availableMoves.clear();
-
-                // If no available moves are found then it has to backtrack
-                // Backtracking logic in this case:
+                    // If no available moves are found then it has to backtrack
+                    // Backtracking logic in this case:
                 } else {
 
-                int idx = visitedCoordinates.indexOf(headCoordinate) - 1;
+                    int idx = visitedCoordinates.indexOf(headCoordinate) - 1;
 
-                // Backtracks one move
-                if (idx > 0) {
-                    headCoordinate = visitedCoordinates.get(idx);
-                    hasBackTracked = true;
-                }
+                    // Backtracks one move
+                    if (idx > 0) {
+                        headCoordinate = visitedCoordinates.get(idx);
+                        hasBackTracked = true;
+                    }
 
-                // Triggers if the backtracker has backed upp all the way back to the start
-                // Finds the first available move where it starts up again:
-                if (idx == 0) {
-                    for (int i = 0; i < visitedCoordinates.size(); i++) {
-                        if (!lookForAvailableMoves(visitedCoordinates.get(i)).isEmpty()) {
-                            headCoordinate = visitedCoordinates.get(i);
+                    // Triggers if the backtracker has backed upp all the way back to the start
+                    // Finds the first available move where it starts up again:
+                    if (idx == 0) {
+                        for (int i = 0; i < visitedCoordinates.size(); i++) {
+                            if (!lookForAvailableMoves(visitedCoordinates.get(i)).isEmpty()) {
+                                headCoordinate = visitedCoordinates.get(i);
+                            }
                         }
                     }
                 }
             }
         }
+        System.out.println("Finished generating maze with the dimensions: " + x + "x" + y);
     }
 
     public int decisionMaker() {
@@ -178,6 +178,4 @@ public class Labyrint {
     public LinkedList<String> getVisitedCoordinates() {
         return visitedCoordinates;
     }
-
-
 }
