@@ -103,4 +103,10 @@ public class HogerHandSolver {
             return values()[(ordinal() + 2) % 4];
         }
     }
+
+    // Hämtar vägen
+    public LinkedList<String> getPath() {
+        return path;
+    }
+
 }
