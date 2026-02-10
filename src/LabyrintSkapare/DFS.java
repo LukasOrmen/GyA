@@ -89,7 +89,7 @@ solve(0,0,width-1,height-1);
 
     @Override
     public LinkedList<String> getIntersections() {
-        return new LinkedList<>();
+        return null;
     }
 }
 
