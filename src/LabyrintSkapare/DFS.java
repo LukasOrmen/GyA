@@ -5,7 +5,7 @@ import java.util.LinkedList;
   DFS (Depth First Search) klass för att hitta en väg genom en labyrint.
   Algoritmen går så djupt som möjligt i en riktning innan den backar.
  */
-public class DFS {
+public class DFS implements Solver{
     private final Cell[][] cells;   // Labyrintens celler
     private final boolean [][] visited;     // Håller koll på vilka celler vi redan besökt
     private final int width, height;
@@ -80,6 +80,16 @@ public class DFS {
         //skriver ut texten i rätt format
     private String toCoord(int x, int y) {
         return "" + (char) ('A' + y) + (x + 1);
+    }
+
+    @Override
+    public LinkedList<String> getPath() {
+        return null;
+    }
+
+    @Override
+    public LinkedList<String> getIntersections() {
+        return null;
     }
 }
 
