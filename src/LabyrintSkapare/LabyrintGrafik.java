@@ -23,7 +23,10 @@ public class LabyrintGrafik {
     // Lista på intersections:
     private final LinkedList<String> intersections;
 
-    // Högerhandsregelns väg:
+    // Lösningen
+    Solver solver;
+    
+    // Lösningens väg:
     private final LinkedList<String> path;
 
     // Musen
@@ -35,11 +38,10 @@ public class LabyrintGrafik {
     private LinkedList<JPanel> panels;
 
     // Konstruktorn
-    // public LabyrintGrafik(int xPanelAntal, int yPanelAntal) {
     public LabyrintGrafik(Labyrint lab, Solver solver) {
         this.lab = lab;
-        this.xPanelAntal = lab.getX;
-        this.yPanelAntal = lab.getY;
+        this.xPanelAntal = lab.getX();
+        this.yPanelAntal = lab.getY();
         this.visitedCoordinates = lab.getVisitedCoordinates();
         this.intersections = lab.getIntersections();
 
@@ -61,17 +63,16 @@ public class LabyrintGrafik {
         drawMaze();
 
         // Lägger till klassen med högerhandsregeln
-        HogerHandSolver hogerHandSolver = new HogerHandSolver(cells, 0, 0, HogerHandSolver.Riktning.NER);
-        hogerHandSolver.solve(5, 5);
-        path = hogerHandSolver.getPath();
+        this.solver = solver;
+        path = solver.getPath();
 
         // Musen
         mouseIcon = new ImageIcon("bilder/mus.png");
         scaledMouse = mouseIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
         mouseLabel = new JLabel(new ImageIcon(scaledMouse));
 
-        // Löser med högerhandsmetoden
-        SolveRightHand();
+        // Löser labyrinten och ritar musen
+        Solve();
 
         // Bara för att kontrollera ritandet
         System.out.println();
@@ -178,7 +179,7 @@ public class LabyrintGrafik {
     }
 
     // Musen löser med högerhandsregeln
-    public void SolveRightHand() {
+    public void Solve() {
         panels.get(0).add(mouseLabel);
 
         // Behövs för att rita om en panel
