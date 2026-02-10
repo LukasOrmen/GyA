@@ -11,14 +11,39 @@ public class LabyrintGrafik {
     private int xPanelAntal;
     private int yPanelAntal;
 
-    public LabyrintGrafik(Labyrint lab) {
+    // Interfacet
+    Solver solver;
+
+    // Path från interfacet
+    LinkedList<String> path;
+
+    // Musen
+    private final ImageIcon mouseIcon;
+    private final JLabel mouseLabel;
+    private final Image scaledMouse;
+
+    // Konstruktorn
+    public LabyrintGrafik(Labyrint lab, Solver solver) {
         this.xPanelAntal = lab.getX();
         this.yPanelAntal = lab.getY();
         this.panels = new LinkedList<>();
 
         drawMaze(lab);
+
+        // Interfacet
+        this.solver = solver;
+        path = solver.getPath();
+
+        // Musen
+        mouseIcon = new ImageIcon("bilder/mus.png");
+        scaledMouse = mouseIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        mouseLabel = new JLabel(new ImageIcon(scaledMouse));
+
+        // Ritar musen som löser labyrinten
+        drawSolution();
     }
 
+    // Ritar labyrinten med ghjälp av panelerna
     private void drawMaze(Labyrint lab) {
         Cell[][] cells = new MakeCells(lab).getCells();
         JFrame frame = new JFrame();
@@ -48,5 +73,14 @@ public class LabyrintGrafik {
         // frame.pack();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    }
+
+    // Musen löser labyrinten
+    public void drawSolution() {
+        panels.get(0).add(mouseLabel);
+
+        // Behövs för att rita om en panel
+        panels.get(0).revalidate();
+        panels.get(0).repaint();
     }
 }
