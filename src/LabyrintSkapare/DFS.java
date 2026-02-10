@@ -19,7 +19,7 @@ public class DFS implements Solver{
             this.height = cells.length;
             this.width = cells[0].length;
             this.visited = new boolean[height][width];
-
+solve(0,0,width-1,height-1);
         }
         //Startpunkt för att lösa labyrinten.
         public void solve(int startX, int startY, int goalX,int goalY){
@@ -84,12 +84,12 @@ public class DFS implements Solver{
 
     @Override
     public LinkedList<String> getPath() {
-        return null;
+        return path;
     }
 
     @Override
     public LinkedList<String> getIntersections() {
-        return null;
+        return new LinkedList<>();
     }
 }
 
