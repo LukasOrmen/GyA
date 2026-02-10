@@ -1,22 +1,21 @@
 package LabyrintSkapare;
 
-
-
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.LinkedList;
 
 public class LabyrintGrafik {
     // Måste översätta allt till engelska insåg jag
 
+    // Labyrinten
+    private final Labyrint lab;
 
     // Antal rader och kolumner
     private final int xPanelAntal;
     private final int yPanelAntal;
 
     // Varje ruta har sin Cell
-    private Cell[][] cells;
+    private final Cell[][] cells;
 
     // Lista på besökta koordinater:
     private final LinkedList<String> visitedCoordinates;
@@ -24,13 +23,23 @@ public class LabyrintGrafik {
     // Lista på intersections:
     private final LinkedList<String> intersections;
 
-    // Konstruktorn
-    public LabyrintGrafik(int xPanelAntal, int yPanelAntal) {
-        this.xPanelAntal = xPanelAntal;
-        this.yPanelAntal = yPanelAntal;
+    // Högerhandsregelns väg:
+    private final LinkedList<String> path;
 
-        // Hämtar en färdig labyrint med det inskrivna antalet rader och kolumner
-        Labyrint lab = new Labyrint(xPanelAntal, yPanelAntal, 10);
+    // Musen
+    private final ImageIcon mouseIcon;
+    private final JLabel mouseLabel;
+    private final Image scaledMouse;
+
+    // Lista med panelerna i
+    private LinkedList<JPanel> panels;
+
+    // Konstruktorn
+    // public LabyrintGrafik(int xPanelAntal, int yPanelAntal) {
+    public LabyrintGrafik(Labyrint lab, Solver solver) {
+        this.lab = lab;
+        this.xPanelAntal = lab.getX;
+        this.yPanelAntal = lab.getY;
         this.visitedCoordinates = lab.getVisitedCoordinates();
         this.intersections = lab.getIntersections();
 
@@ -45,18 +54,31 @@ public class LabyrintGrafik {
         // Tar bort väggar baserat på visitedCoordinates
         removeWallsFromVisited();
 
-        // Lösning genom högerhandsmetoden
-        HogerHandSolver solver = new HogerHandSolver(cells, 4, 4, HogerHandSolver.Riktning.HOGER);
-        // Mål: A1 → (0,0)
-            solver.solve(0, 0);
+        // Skapar panellistan
+        panels = new LinkedList<>();
 
         // Ritar labyrinten
         drawMaze();
 
+        // Lägger till klassen med högerhandsregeln
+        HogerHandSolver hogerHandSolver = new HogerHandSolver(cells, 0, 0, HogerHandSolver.Riktning.NER);
+        hogerHandSolver.solve(5, 5);
+        path = hogerHandSolver.getPath();
+
+        // Musen
+        mouseIcon = new ImageIcon("bilder/mus.png");
+        scaledMouse = mouseIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        mouseLabel = new JLabel(new ImageIcon(scaledMouse));
+
+        // Löser med högerhandsmetoden
+        SolveRightHand();
+
         // Bara för att kontrollera ritandet
         System.out.println();
+        System.out.println("Mouse width: " + mouseIcon.getIconWidth());
+        System.out.println();
         System.out.println(visitedCoordinates);
-        System.out.println(lab.getIntersections());
+        System.out.println("Intersections: " + lab.getIntersections());
         System.out.println();
         System.out.println(lab.mazeBuilder());
         System.out.println(lab);
@@ -124,7 +146,7 @@ public class LabyrintGrafik {
         }
     }
 
-    // Ritar hela labyrinten
+    // Ritar hela labyrinten (panelerna)
     private void drawMaze() {
         JFrame frame = new JFrame();
         frame.setLayout(new GridLayout(yPanelAntal, xPanelAntal));
@@ -140,23 +162,36 @@ public class LabyrintGrafik {
 
                 JPanel panel = new JPanel();
                 panel.setBorder(BorderFactory.createMatteBorder(top, left, bottom, right, Color.BLACK));
+                panel.setBackground(new Color(156, 236, 126));
 
+                panels.add(panel);
                 frame.add(panel);
             }
         }
 
         // Ritar fönsret
         frame.setSize(500, 500);
+        frame.setLocation(430, 100);
         // frame.pack();
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
+    // Musen löser med högerhandsregeln
+    public void SolveRightHand() {
+        panels.get(0).add(mouseLabel);
 
-    // Bara main
-    public static void main(String[] args) {
-        new LabyrintGrafik(5, 5);
+        // Behövs för att rita om en panel
+        panels.get(0).revalidate();
+        panels.get(0).repaint();
     }
+
+    // Metod till Sirwans lösningar
+    public Cell[][] getCells() {
+        return cells;
+    }
+
+
 
 
 
