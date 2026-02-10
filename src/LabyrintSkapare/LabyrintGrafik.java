@@ -5,152 +5,24 @@ import java.awt.*;
 import java.util.LinkedList;
 
 public class LabyrintGrafik {
-    // Måste översätta allt till engelska insåg jag
 
-    // Labyrinten
-    private final Labyrint lab;
-
-    // Antal rader och kolumner
-    private final int xPanelAntal;
-    private final int yPanelAntal;
-
-    // Varje ruta har sin Cell
-    private final Cell[][] cells;
-
-    // Lista på besökta koordinater:
-    private final LinkedList<String> visitedCoordinates;
-
-    // Lista på intersections:
-    private final LinkedList<String> intersections;
-
-    // Lösningen
-    Solver solver;
-    
-    // Lösningens väg:
-    private final LinkedList<String> path;
-
-    // Musen
-    private final ImageIcon mouseIcon;
-    private final JLabel mouseLabel;
-    private final Image scaledMouse;
-
-    // Lista med panelerna i
     private LinkedList<JPanel> panels;
+    private Labyrint lab;
+    private int xPanelAntal;
+    private int yPanelAntal;
 
-    // Konstruktorn
-    public LabyrintGrafik(Labyrint lab, Solver solver) {
-        this.lab = lab;
+    public LabyrintGrafik(Labyrint lab) {
         this.xPanelAntal = lab.getX();
         this.yPanelAntal = lab.getY();
-        this.visitedCoordinates = lab.getVisitedCoordinates();
-        this.intersections = lab.getIntersections();
+        this.panels = new LinkedList<>();
 
-        // Skapar en cell för varje panel
-        cells = new Cell[yPanelAntal][xPanelAntal];
-        for (int y = 0; y < yPanelAntal; y++) {
-            for (int x = 0; x < xPanelAntal; x++) {
-                cells[y][x] = new Cell();
-            }
-        }
-
-        // Tar bort väggar baserat på visitedCoordinates
-        removeWallsFromVisited();
-
-        // Skapar panellistan
-        panels = new LinkedList<>();
-
-        // Ritar labyrinten
-        drawMaze();
-
-        // Lägger till klassen med högerhandsregeln
-        this.solver = solver;
-        path = solver.getPath();
-
-        // Musen
-        mouseIcon = new ImageIcon("bilder/mus.png");
-        scaledMouse = mouseIcon.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        mouseLabel = new JLabel(new ImageIcon(scaledMouse));
-
-        // Löser labyrinten och ritar musen
-        Solve();
-
-        // Bara för att kontrollera ritandet
-        System.out.println();
-        System.out.println("Mouse width: " + mouseIcon.getIconWidth());
-        System.out.println();
-        System.out.println(visitedCoordinates);
-        System.out.println("Intersections: " + lab.getIntersections());
-        System.out.println();
-        System.out.println(lab.mazeBuilder());
-        System.out.println(lab);
+        drawMaze(lab);
     }
 
-    // Tar bort väggar baserat på visitedCoordinates
-    private void removeWallsFromVisited() {
-        // Räknar hur många intersections som använts
-        int n = 0;
-
-        for (int i = 1; i < visitedCoordinates.size(); i++) {
-            String from = visitedCoordinates.get(i - 1);
-            String to = visitedCoordinates.get(i);
-
-            int x1 = Integer.parseInt(from.substring(1)) - 1;
-            int y1 = from.charAt(0) - 'A';
-
-            int x2 = Integer.parseInt(to.substring(1)) - 1;
-            int y2 = to.charAt(0) - 'A';
-
-            // Horisontellt
-            if (x2 == x1 + 1 && y1 == y2) {
-                cells[y1][x1].removeRight();
-                cells[y2][x2].removeLeft();
-            } else if (x2 == x1 - 1 && y1 == y2) {
-                cells[y1][x1].removeLeft();
-                cells[y2][x2].removeRight();
-            }
-            // Vertikalt
-            else if (y2 == y1 + 1 && x1 == x2) {
-                cells[y1][x1].removeBottom();
-                cells[y2][x2].removeTop();
-            } else if (y2 == y1 - 1 && x1 == x2) {
-                cells[y1][x1].removeTop();
-                cells[y2][x2].removeBottom();
-            }
-
-            // Tar bort väggar när det skett backtracking m.h.a "intersections"
-            else {
-                from = intersections.get(n);
-
-                x1 = Integer.parseInt(from.substring(1)) - 1;
-                y1 = from.charAt(0) - 'A';
-
-                // Horisontellt
-                if (x2 == x1 + 1 && y1 == y2) {
-                    cells[y1][x1].removeRight();
-                    cells[y2][x2].removeLeft();
-                } else if (x2 == x1 - 1 && y1 == y2) {
-                    cells[y1][x1].removeLeft();
-                    cells[y2][x2].removeRight();
-                }
-                // Vertikalt
-                else if (y2 == y1 + 1 && x1 == x2) {
-                    cells[y1][x1].removeBottom();
-                    cells[y2][x2].removeTop();
-                } else if (y2 == y1 - 1 && x1 == x2) {
-                    cells[y1][x1].removeTop();
-                    cells[y2][x2].removeBottom();
-                }
-
-                // Så att nästa backtrack kollar på nästa intersection
-                n++;
-            }
-        }
-    }
-
-    // Ritar hela labyrinten (panelerna)
-    private void drawMaze() {
+    private void drawMaze(Labyrint lab) {
+        Cell[][] cells = new MakeCells(lab).getCells();
         JFrame frame = new JFrame();
-        frame.setLayout(new GridLayout(yPanelAntal, xPanelAntal));
+        frame.setLayout(new GridLayout(xPanelAntal, yPanelAntal));
 
         for (int y = 0; y < yPanelAntal; y++) {
             for (int x = 0; x < xPanelAntal; x++) {
@@ -177,44 +49,4 @@ public class LabyrintGrafik {
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
-
-    // Musen löser med högerhandsregeln
-    public void Solve() {
-        panels.get(0).add(mouseLabel);
-
-        // Behövs för att rita om en panel
-        panels.get(0).revalidate();
-        panels.get(0).repaint();
-    }
-
-    // Metod till Sirwans lösningar
-    public Cell[][] getCells() {
-        return cells;
-    }
-
-
-
-
-
-
-    // Sånt som inte används skrivs nedan, kan komma till användning senare
-
-    /*
-    // Metoder för att dela upp koordinaterna:
-    public int yCoordinate(String string) {
-        char stringLetter = string.charAt(0);
-
-        return char;
-    }
-
-    public int xCoordinate(String string) {
-        String stringNumber = string.substring(1);
-        int number = Integer.parseInt(stringNumber);
-
-        return number;
-    }
-*/
-
-
-
 }
