@@ -87,16 +87,6 @@ public class HogerHandSolver implements Solver {
         return "" + (char) ('A' + y) + (x + 1);
     }
 
-    @Override
-    public LinkedList<String> getPath() {
-        return path;
-    }
-
-    @Override
-    public LinkedList<String> getIntersections() {
-        return null;
-    }
-
     // Direction
     public enum Riktning {
         UPP, HOGER, NER, VANSTER;
@@ -113,4 +103,10 @@ public class HogerHandSolver implements Solver {
             return values()[(ordinal() + 2) % 4];
         }
     }
+
+    // Hämtar vägen
+    public LinkedList<String> getPath() {
+        return path;
+    }
+
 }
