@@ -14,7 +14,6 @@ public class DFS implements Solver{
     private final LinkedList<String> path = new LinkedList<>();
     // Flagga som blir true när vi når målet
     private  boolean found = false;
-
     public DFS(Cell[][]cells){
         this.cells = cells;
         this.height = cells.length;
@@ -22,7 +21,6 @@ public class DFS implements Solver{
         this.visited = new boolean[height][width];
         solve(0,0,width-1,height-1);
     }
-
     //Startpunkt för att lösa labyrinten.
     public void solve(int startX, int startY, int goalX,int goalY){
         dfs(startX, startY, goalX, goalY);
@@ -89,9 +87,4 @@ public class DFS implements Solver{
         return path;
     }
 
-    @Override
-    public LinkedList<String> getIntersections() {
-        return null;
-    }
 }
-
