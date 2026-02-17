@@ -115,22 +115,7 @@ public class LabyrintGrafik {
         panels.getLast().repaint();
 
         // Musen flyttas en panel i taget
-        timer = new Timer(35, e -> {
-            if (steg == path.size()) {
-                timer.stop();
-
-                // Tar bort osten när musen är framme
-                panels.getLast().remove(cheeseLabel);
-                panels.getLast().revalidate();
-                panels.getLast().repaint();
-
-                // Visar statistiklabeln:
-                endingLabel.setVisible(true);
-
-                // För att inte fortsätta efter timern stoppats
-                return;
-            }
-
+        timer = new Timer(200, e -> {
             // Lägger till musen på nuvarande panel
             String currentCord = path.get(steg);
             panelMap.get(currentCord).add(mouseLabel);
@@ -149,6 +134,17 @@ public class LabyrintGrafik {
 
             // Ökar antal steg med 1
             steg++;
+            if (steg == path.size()) {
+                timer.stop();
+
+                // Tar bort osten när musen är framme
+                panels.getLast().remove(cheeseLabel);
+                panels.getLast().revalidate();
+                panels.getLast().repaint();
+
+                // Visar statistiklabeln:
+                endingLabel.setVisible(true);
+            }
         } );
         timer.start();
     }
