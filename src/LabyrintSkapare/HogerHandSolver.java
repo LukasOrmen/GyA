@@ -4,151 +4,119 @@ import java.util.LinkedList;
 
 public class HogerHandSolver implements Solver {
 
-    private final Cell[][] cells;        // Labyrinten
-    private final boolean[][] visited;   // besökta rutor
+    private final Cell[][] cells;
+    private int x, y;
+    private Riktning riktning;
     private final int width, height;
 
-    private final LinkedList<String> path = new LinkedList<>(); // Sparar vägen
-    private boolean found = false; // Blir true när målet hittas
+    // Sparar vägen
+    private final LinkedList<String> path = new LinkedList<>();
 
-    public HogerHandSolver(Cell[][] cells) {
+    public HogerHandSolver(Cell[][] cells, int startX, int startY, Riktning startRiktning) {
         this.cells = cells;
+        this.x = startX;
+        this.y = startY;
+        this.riktning = startRiktning;
+
         this.height = cells.length;
         this.width = cells[0].length;
-        this.visited = new boolean[height][width];
+
+        path.add(toCoord());
     }
 
-    // Startmetod
-    public void solve(int startX, int startY, int goalX, int goalY, Riktning startRiktning) {
 
-        // Starta med riktning
-        RightHand(startX, startY, goalX, goalY, startRiktning);
+    // Righthandrule
 
-        // Resultat
-        if (found) {
-            System.out.println("Högerhand hittade väg");
-            System.out.println("Väg: " + path);
-            System.out.println("Antal steg: " + path.size());
-        } else {
-            System.out.println("Högerhand hittade ingen väg");
+    public void solve(int goalX, int goalY) {
+
+        int safety = 0;
+
+        while ((x != goalX || y != goalY) && safety++ < 10_000) {
+
+            // Högerhandsregel:
+            //  höger
+            //  rakt fram
+            //  vänster
+            //  bakåt
+            Riktning[] checks = {
+                    riktning.right(),
+                    riktning,
+                    riktning.left(),
+                    riktning.back()
+            };
+
+            for (Riktning d : checks) {
+                if (canMove(d)) {
+                    move(d);
+                    break;
+                }
+            }
         }
+
+        System.out.println("Slutposition: " + toCoord());
+        System.out.println("Antal steg: " + path.size());
+        System.out.println("Väg: " + path);
     }
 
-    // högerhandsregel
-    private void RightHand(int x, int y, int goalX, int goalY, Riktning riktning) {
-
-        // Om vi redan hittat målet → avbryt
-        if (found) return;
-
-        // Markera rutan som besökt
-        visited[y][x] = true;
-
-        // Lägg till positionen i vägen
-        path.add(toCoord(x, y));
-
-        // Om vi nått målet  klart
-        if (x == goalX && y == goalY) {
-            found = true;
-            return;
-        }
-
-        // Hämta nuvarande cell (för att kolla väggar)
+    // RörelseKontroll
+    private boolean canMove(Riktning d) {
         Cell c = cells[y][x];
 
-        // Högerhandsregeln:
-        // 1. Höger
-        // 2. Fram
-        // 3. Vänster
-        // 4. Bak
-        Riktning[] checks = {
-                riktning.right(),
-                riktning,
-                riktning.left(),
-                riktning.back()
-        };
-
-        // Loopar igenom riktningarna i rätt ordning
-        for (Riktning d : checks) {
-
-            int newX = x;
-            int newY = y;
-
-            // Räkna ut nästa position beroende på riktning
-            switch (d) {
-                case UPP     -> newY--;
-                case NER     -> newY++;
-                case HOGER   -> newX++;
-                case VANSTER -> newX--;
-            }
-
-            // Om vi kan gå dit -> fortsätt
-            if (canMove(c, x, y, newX, newY, d)) {
-                RightHand(newX, newY, goalX, goalY, d);
-            }
-
-            // Om målet hittades -> sluta direkt
-            if (found) return;
-        }
-
-        // Backtracking
-        // Om ingen väg fungerade -> ta bort sista steget
-        if (!found) {
-            path.removeLast();
-        }
-    }
-
-    // om kan gå i en riktning
-    private boolean canMove(Cell c, int x, int y, int newX, int newY, Riktning d) {
-
-        //  inte går utanför labyrinten
-        if (newX < 0 || newX >= width || newY < 0 || newY >= height)
-            return false;
-
-        // Kolla så vi inte redan varit där
-        if (visited[newY][newX])
-            return false;
-
-        // Kolla väggar (0 = ingen vägg = vi kan gå)
         return switch (d) {
-            case UPP     -> c.getTop() == 0;
-            case NER     -> c.getBottom() == 0;
-            case HOGER   -> c.getRight() == 0;
-            case VANSTER -> c.getLeft() == 0;
+            case UPP     -> c.getTop() == 0 && y > 0;
+            case NER     -> c.getBottom() == 0 && y < height - 1;
+            case HOGER   -> c.getRight() == 0 && x < width - 1;
+            case VANSTER -> c.getLeft() == 0 && x > 0;
         };
     }
 
-    // Omvandlar koordinater till formatet "A1"
-    private String toCoord(int x, int y) {
+    private void move(Riktning d) {
+        riktning = d;
+
+        switch (d) {
+            case UPP     -> y--;
+            case NER     -> y++;
+            case HOGER   -> x++;
+            case VANSTER -> x--;
+        }
+
+        path.add(toCoord());
+    }
+    //TooCord
+    private String toCoord() {
         return "" + (char) ('A' + y) + (x + 1);
     }
 
+    // Direction
+    public enum Riktning {
+        UPP, HOGER, NER, VANSTER;
+
+        public Riktning right() {
+            return values()[(ordinal() + 1) % 4];
+        }
+
+        public Riktning left() {
+            return values()[(ordinal() + 3) % 4];
+        }
+
+        public Riktning back() {
+            return values()[(ordinal() + 2) % 4];
+        }
+    }
+
     @Override
+    public void solve(int startX, int startY, int goalX, int goalY) {
+
+    }
+
+    // Hämtar vägen
     public LinkedList<String> getPath() {
         return path;
     }
 
     @Override
     public LinkedList<String> getIntersections() {
-        return null;
+        return new LinkedList<>();
     }
 
-    // Enum för riktningar
-    public enum Riktning {
-        UPP, HOGER, NER, VANSTER;
-
-        // Höger om nuvarande riktning
-        public Riktning right() {
-            return values()[(ordinal() + 1) % 4];
-        }
-
-        // Vänster om nuvarande riktning
-        public Riktning left() {
-            return values()[(ordinal() + 3) % 4];
-        }
-
-        // Bakåt (vänd 180°)
-        public Riktning back() {
-            return values()[(ordinal() + 2) % 4];
-        }
-    }
 }
