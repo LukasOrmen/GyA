@@ -12,16 +12,17 @@ public class HogerHandSolver implements Solver {
     // Sparar vägen
     private final LinkedList<String> path = new LinkedList<>();
 
-    public HogerHandSolver(Cell[][] cells, int startX, int startY, Riktning startRiktning) {
-        this.cells = cells;
-        this.x = startX;
-        this.y = startY;
-        this.riktning = startRiktning;
+    public HogerHandSolver(Labyrint lab) {
+        this.cells = new MakeCells(lab).getCells();
+        this.x = 0;
+        this.y = 0;
+        this.riktning = Riktning.HOGER;
 
         this.height = cells.length;
         this.width = cells[0].length;
 
         path.add(toCoord());
+        solve(lab.getX()-1, lab.getY()-1);
     }
 
 
