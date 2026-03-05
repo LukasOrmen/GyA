@@ -20,7 +20,6 @@ public class HogerHandSolver implements Solver {
 
         this.height = cells.length;
         this.width = cells[0].length;
-        solve(0,0,width-1,height-1);
 
         path.add(toCoord());
     }
@@ -105,10 +104,6 @@ public class HogerHandSolver implements Solver {
         }
     }
 
-    @Override
-    public void solve(int startX, int startY, int goalX, int goalY) {
-
-    }
 
     // Hämtar vägen
     public LinkedList<String> getPath() {
