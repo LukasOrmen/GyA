@@ -20,6 +20,7 @@ public class HogerHandSolver implements Solver {
 
         this.height = cells.length;
         this.width = cells[0].length;
+        solve(0,0,width-1,height-1);
 
         path.add(toCoord());
     }
@@ -114,9 +115,6 @@ public class HogerHandSolver implements Solver {
         return path;
     }
 
-    @Override
-    public LinkedList<String> getIntersections() {
-        return new LinkedList<>();
-    }
+
 
 }
