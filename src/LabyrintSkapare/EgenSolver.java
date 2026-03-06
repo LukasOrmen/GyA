@@ -48,12 +48,6 @@ public class EgenSolver implements Solver {
 
         Cell c = cells[y][x];
 
-        // UPP
-        if(!found && c.getTop()==0 && y>0 && !visited[y-1][x]){
-            dfs(x,y-1,goalX,goalY);
-            if(!found) path.add(toCoord(x,y)); // tillbaka
-        }
-
         // HÖGER
         if(!found && c.getRight()==0 && x<width-1 && !visited[y][x+1]){
             dfs(x+1,y,goalX,goalY);
@@ -71,6 +65,13 @@ public class EgenSolver implements Solver {
             dfs(x-1,y,goalX,goalY);
             if(!found) path.add(toCoord(x,y));
         }
+        // UPP
+        if(!found && c.getTop()==0 && y>0 && !visited[y-1][x]){
+            dfs(x,y-1,goalX,goalY);
+            if(!found) path.add(toCoord(x,y)); // tillbaka
+        }
+
+
     }
 
     private String toCoord(int x,int y){
