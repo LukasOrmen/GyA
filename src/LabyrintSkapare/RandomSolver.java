@@ -136,13 +136,7 @@ public class RandomSolver implements Solver {
     public enum Riktning {
         UPP, HOGER, NER, VANSTER
     }
-
-    // Interface-metod
-    @Override
-    public void solve(int startX, int startY, int goalX, int goalY) {
-        dfs(startX, startY, goalX, goalY);
-    }
-
+    
     // Returnerar vägen
     public LinkedList<String> getPath() {
         return path;
