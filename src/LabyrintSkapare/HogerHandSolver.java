@@ -1,33 +1,28 @@
+
 package LabyrintSkapare;
 
 import java.util.LinkedList;
 
 public class HogerHandSolver implements Solver {
     private final Cell[][] cells;
-    // Labyrintens bredd och höjd
     private final int width, height;
-    // Nuvarande position i labyrinten (startar i A1)
+    // start
     private int x = 0;
     private int y = 0;
-    // Den riktning som algoritmen just nu är vänd åt
     private Riktning riktning = Riktning.HOGER;
-    // Lista som sparar hela vägen genom labyrinten
     private final LinkedList<String> path = new LinkedList<>();
-    // Konstruktor som startar lösningen
     public HogerHandSolver(Labyrint lab) {
-        // Skapar cellerna från labyrinten
         cells = new MakeCells(lab).getCells();
         // Sparar labyrintens storlek
         height = cells.length;
         width = cells[0].length;
         // Lägger till startpositionen i vägen
         path.add(toCoord());
-        // Startar algoritmen mot målet (nedre högra hörnet)
         solve(width - 1, height - 1);
     }
 
 
-    // Metod som kör högerhandsalgoritmen tills målet nås
+    // högerhandsalgoritmen tills mål
     public void solve(int goalX, int goalY) {
 
         // Fortsätter tills vi når målet
@@ -124,9 +119,6 @@ public class HogerHandSolver implements Solver {
 
     // Gör om koordinater till formatet A1, B3 osv
     private String toCoord() {
-
-        // Bokstaven representerar raden
-        // Siffran representerar kolumnen
         return "" + (char) ('A' + y) + (x + 1);
     }
 
